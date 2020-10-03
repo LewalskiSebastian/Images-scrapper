@@ -31,7 +31,8 @@ class Scraper:
 
         for url in urls:
             image = self.get_image_from_url(url)
-            self.save_image(image, save_path, prefix)
+            if image:
+                self.save_image(image, save_path, prefix)
 
     def __del__(self):
         try:
@@ -100,14 +101,15 @@ class Scraper:
         return image_urls
 
     def get_image_from_url(self, url: str):
+        image = None
         try:
             image_content = requests.get(url).content
             image_file = io.BytesIO(image_content)
             image = Image.open(image_file).convert('RGB')
-            return image
         except Exception as e:
             if not self.quiet_mode:
                 print(f"Could not download {url} - {e}")
+        return image
 
     def save_image(self, image, save_path, prefix):
         buf = io.BytesIO()
@@ -122,3 +124,7 @@ class Scraper:
         except Exception as e:
             if not self.quiet_mode:
                 print(f" Could not save {file_path} - {e}")
+
+s = Scraper('chromedriver.exe')
+s.search_and_download('Sweet cats', save_path='cats', number_images=69)
+s.exit()
